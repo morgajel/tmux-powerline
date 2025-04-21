@@ -24,6 +24,9 @@ run_segment() {
 		return 0
 	fi
 	oc_context=$(oc config current-context)
+  oc_cluster=$(oc config view -o jsonpath="{.contexts[?(@.name==\"${oc_context}\")].context.cluster}" )
+  oc_server=$(oc config view -o jsonpath="{$.clusters[?(@.name==\"${oc_cluster}\")].cluster.server}"|sed -e 's/https:..api\.//' -e 's/\..*//')
+  oc_server=$(oc config view -o jsonpath="{$.clusters[?(@.name==\"${oc_cluster}\")].cluster.server}"|sed -e 's/https:..api\.//' -e 's/\..*//')
 	oc_whoami=$(oc whoami)
 	if [ -z "$oc_context" ]; then
 		return 0
@@ -40,7 +43,8 @@ run_segment() {
 		elif [ "${TMUX_POWERLINE_SEG_OPENSHIFT_CONTEXT_DISPLAY_MODE}" = "name_namespace" ]; then
 			echo -n "${oc_display}${oc_name}${TMUX_POWERLINE_SEG_OPENSHIFT_CONTEXT_SEPARATOR} ${oc_namespace}"
 		elif [ "${TMUX_POWERLINE_SEG_OPENSHIFT_CONTEXT_DISPLAY_MODE}" = "full" ]; then
-			echo -n "${oc_context}${TMUX_POWERLINE_SEG_OPENSHIFT_CONTEXT_SEPARATOR} ${oc_namespace}@${oc_cluster} ${oc_display}${oc_whoami}"
+			#echo -n "${oc_namespace}@${oc_cluster} ${TMUX_POWERLINE_SEG_OPENSHIFT_CONTEXT_SEPARATOR} ${oc_display}${oc_whoami}"
+			echo -n "${oc_namespace}@${oc_server} ${TMUX_POWERLINE_SEG_OPENSHIFT_CONTEXT_SEPARATOR} ${oc_display}${oc_whoami}"
 		fi
 	fi
 }
